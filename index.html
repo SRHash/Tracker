@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Mind — Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a40;
+    --accent: #00ff88;
+    --accent2: #00ccff;
+    --danger: #ff4466;
+    --warn: #ffaa00;
+    --text: #e8e8f0;
+    --muted: #6666aa;
+    --success: #00ff88;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 20% 20%, rgba(0,255,136,0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0,204,255,0.03) 0%, transparent 50%);
+    animation: bgPulse 8s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes bgPulse {
+    0% { transform: scale(1) rotate(0deg); }
+    100% { transform: scale(1.1) rotate(5deg); }
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.8s ease;
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(48px, 10vw, 80px);
+    letter-spacing: 6px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  /* Streak Hero */
+  .streak-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 35px;
+    text-align: center;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+
+  .streak-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  .streak-number {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(80px, 20vw, 140px);
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .streak-number.pulse {
+    animation: streakPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes streakPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  .streak-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 5px;
+  }
+
+  .streak-message {
+    margin-top: 15px;
+    font-size: 16px;
+    color: var(--text);
+    font-weight: 500;
+    min-height: 24px;
+    transition: all 0.3s ease;
+  }
+
+  /* Stats Row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+
+  .stat-card:hover { border-color: var(--accent); }
+
+  .stat-value {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 36px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Action Buttons */
+  .action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  .btn {
+    padding: 18px;
+    border: none;
+    border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn:active::after { opacity: 0.1; }
+
+  .btn-success {
+    background: linear-gradient(135deg, #00cc6a, var(--accent));
+    color: #000;
+  }
+
+  .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,255,136,0.3); }
+
+  .btn-danger {
+    background: var(--surface);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+  }
+
+  .btn-danger:hover { background: rgba(255,68,102,0.1); transform: translateY(-2px); }
+
+  /* Today's Check */
+  .today-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+    animation: fadeUp 0.8s ease 0.35s both;
+  }
+
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+
+  /* Calendar */
+  .calendar-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+    animation: fadeUp 0.8s ease 0.4s both;
+  }
+
+  .calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .cal-month {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--text);
+  }
+
+  .cal-nav-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .cal-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .cal-day-name {
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    padding-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    background: var(--surface2);
+    color: var(--muted);
+  }
+
+  .cal-day.has-date { color: var(--text); }
+  .cal-day.has-date:hover { border-color: var(--accent); color: var(--accent); }
+
+  .cal-day.clean {
+    background: rgba(0,255,136,0.15);
+    border-color: rgba(0,255,136,0.4);
+    color: var(--accent);
+  }
+
+  .cal-day.relapsed {
+    background: rgba(255,68,102,0.12);
+    border-color: rgba(255,68,102,0.3);
+    color: var(--danger);
+  }
+
+  .cal-day.urge-won {
+    background: rgba(255,170,0,0.12);
+    border-color: rgba(255,170,0,0.3);
+    color: var(--warn);
+  }
+
+  .cal-day.today-mark {
+    box-shadow: 0 0 0 2px var(--accent2);
+  }
+
+  .cal-day.empty { background: transparent; cursor: default; border: none; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* Emergency Panel */
+  .emergency-section {
+    background: linear-gradient(135deg, rgba(255,68,102,0.08), rgba(255,170,0,0.05));
+    border: 1px solid rgba(255,68,102,0.3);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+    animation: fadeUp 0.8s ease 0.45s both;
+  }
+
+  .emergency-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px;
+    color: var(--danger);
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+  }
+
+  .emergency-steps {
+    display: grid;
+    gap: 10px;
+  }
+
+  .emergency-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .emergency-step:hover { border-color: var(--warn); }
+
+  .step-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px;
+    color: var(--warn);
+    min-width: 28px;
+  }
+
+  .step-done {
+    text-decoration: line-through;
+    opacity: 0.4;
+  }
+
+  .step-check {
+    margin-left: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .step-checked .step-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  /* Milestones */
+  .milestone-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+    animation: fadeUp 0.8s ease 0.5s both;
+  }
+
+  .milestone-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .milestone-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+
+  .milestone-item.achieved {
+    border-color: rgba(0,255,136,0.4);
+    background: rgba(0,255,136,0.07);
+  }
+
+  .milestone-icon {
+    font-size: 22px;
+    min-width: 30px;
+    text-align: center;
+  }
+
+  .milestone-info { flex: 1; }
+  .milestone-name { font-size: 14px; font-weight: 600; }
+  .milestone-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .milestone-days {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .milestone-item.achieved .milestone-days {
+    color: var(--accent);
+    background: rgba(0,255,136,0.1);
+  }
+
+  /* Benefits */
+  .benefits-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+    animation: fadeUp 0.8s ease 0.55s both;
+  }
+
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--surface2);
+    border-radius: 10px;
+    font-size: 13px;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+  }
+
+  .benefit-item.unlocked {
+    border-color: rgba(0,255,136,0.3);
+    color: var(--accent);
+  }
+
+  .benefit-icon { font-size: 18px; }
+
+  /* Motivation Quote */
+  .quote-section {
+    background: linear-gradient(135deg, var(--surface), rgba(0,255,136,0.05));
+    border: 1px solid rgba(0,255,136,0.2);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 25px;
+    animation: fadeUp 0.8s ease 0.6s both;
+  }
+
+  .quote-text {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--text);
+    font-weight: 300;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+
+  .quote-author {
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 14px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1000;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Celebration */
+  .celebrate {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confettiFall 3s ease-in forwards;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    .stats-row { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .action-row { grid-template-columns: 1fr 1fr; }
+    .benefits-grid { grid-template-columns: 1fr; }
+    .stat-value { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>CLEAN MIND</h1>
+    <p>⚡ তুমি বড় কিছু হওয়ার জন্যই এখানে আছ</p>
+  </div>
+
+  <!-- Streak Hero -->
+  <div class="streak-hero">
+    <div class="streak-number" id="streakNum">0</div>
+    <div class="streak-label">🔥 Current Streak — Days Clean</div>
+    <div class="streak-message" id="streakMsg">আজকেই শুরু করো। প্রথম দিনটা সবচেয়ে গুরুত্বপূর্ণ।</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="bestStreak">0</div>
+      <div class="stat-label">🏆 Best Streak</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="totalClean">0</div>
+      <div class="stat-label">✅ Total Clean Days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="successRate">0%</div>
+      <div class="stat-label">📈 Success Rate</div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-row">
+    <button class="btn btn-success" onclick="markToday('clean')">
+      ✅ আজকে Clean ছিলাম
+    </button>
+    <button class="btn btn-danger" onclick="markToday('relapsed')">
+      💀 Relapse হয়েছে
+    </button>
+  </div>
+
+  <!-- Calendar -->
+  <div class="calendar-section">
+    <div class="section-title">📅 Monthly Progress</div>
+    <div class="calendar-nav">
+      <button class="cal-nav-btn" onclick="changeMonth(-1)">←</button>
+      <div class="cal-month" id="calMonthLabel"></div>
+      <button class="cal-nav-btn" onclick="changeMonth(1)">→</button>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:rgba(0,255,136,0.4)"></div>
+        <span>Clean Day</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:rgba(255,68,102,0.4)"></div>
+        <span>Relapse</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:rgba(255,170,0,0.4)"></div>
+        <span>Urge জিতেছি</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency Panel -->
+  <div class="emergency-section">
+    <div class="emergency-title">🚨 URGE আসলে এখনই করো</div>
+    <div class="emergency-steps" id="emergencySteps">
+      <div class="emergency-step" onclick="toggleStep(this)">
+        <span class="step-num">01</span>
+        <span class="step-text">উঠে দাঁড়াও — এখনই</span>
+        <div class="step-check">✓</div>
+      </div>
+      <div class="emergency-step" onclick="toggleStep(this)">
+        <span class="step-num">02</span>
+        <span class="step-text">ঠান্ডা পানি খাও — এক গ্লাস</span>
+        <div class="step-check">✓</div>
+      </div>
+      <div class="emergency-step" onclick="toggleStep(this)">
+        <span class="step-num">03</span>
+        <span class="step-text">20টা Push-up দাও — এখনই</span>
+        <div class="step-check">✓</div>
+      </div>
+      <div class="emergency-step" onclick="toggleStep(this)">
+        <span class="step-num">04</span>
+        <span class="step-text">Phone রেখে অন্য room এ যাও</span>
+        <div class="step-check">✓</div>
+      </div>
+      <div class="emergency-step" onclick="toggleStep(this)">
+        <span class="step-num">05</span>
+        <span class="step-text">Coding বা পড়া শুরু করো — যেকোনো problem খোলো</span>
+        <div class="step-check">✓</div>
+      </div>
+      <div class="emergency-step" onclick="toggleStep(this)">
+        <span class="step-num">06</span>
+        <span class="step-text">১৫ মিনিট পার করো — Urge চলে যাবে</span>
+        <div class="step-check">✓</div>
+      </div>
+    </div>
+    <div style="margin-top:15px; padding:12px 16px; background:rgba(0,0,0,0.3); border-radius:10px; font-size:13px; color:var(--muted); text-align:center;">
+      ⏱️ Urge মাত্র <strong style="color:var(--warn)">10-15 মিনিট</strong> থাকে। এটুকু পার করলেই জিতে যাবে।
+    </div>
+  </div>
+
+  <!-- Milestones -->
+  <div class="milestone-section">
+    <div class="section-title">🏆 Milestones</div>
+    <div class="milestone-list" id="milestoneList"></div>
+  </div>
+
+  <!-- Benefits Unlocked -->
+  <div class="benefits-section">
+    <div class="section-title">⚡ Benefits Unlocking</div>
+    <div class="benefits-grid" id="benefitsGrid"></div>
+  </div>
+
+  <!-- Quote -->
+  <div class="quote-section">
+    <div class="quote-text" id="quoteText">"Discipline is the bridge between goals and accomplishment."</div>
+    <div class="quote-author" id="quoteAuthor">— JIM ROHN</div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+<div class="celebrate" id="celebrate"></div>
+
+<script>
+  // ===== DATA =====
+  const MILESTONES = [
+    { days: 1,   icon: '🌱', name: 'প্রথম পদক্ষেপ',     desc: 'Journey শুরু হলো' },
+    { days: 3,   icon: '⚡', name: '3 দিনের যোদ্ধা',    desc: 'Brain reboot শুরু' },
+    { days: 7,   icon: '🔥', name: 'এক সপ্তাহ',         desc: 'Dopamine reset হচ্ছে' },
+    { days: 14,  icon: '💪', name: 'দুই সপ্তাহ',        desc: 'Confidence বাড়ছে' },
+    { days: 21,  icon: '🧠', name: '21 দিন — Habit',    desc: 'নতুন habit তৈরি হয়েছে' },
+    { days: 30,  icon: '🏆', name: 'এক মাস — Legend',   desc: 'তুমি অন্য স্তরে' },
+    { days: 60,  icon: '🌟', name: 'দুই মাস',           desc: 'Mental clarity শীর্ষে' },
+    { days: 90,  icon: '👑', name: '90 দিন — KING',     desc: 'তুমি জিতে গেছ' },
+  ];
+
+  const BENEFITS = [
+    { icon: '⚡', text: 'বেশি Energy', unlocksAt: 3 },
+    { icon: '🧠', text: 'Focus বেড়েছে', unlocksAt: 7 },
+    { icon: '😴', text: 'Better Sleep', unlocksAt: 7 },
+    { icon: '💪', text: 'Confidence আসছে', unlocksAt: 14 },
+    { icon: '🗣️', text: 'Social Ease', unlocksAt: 21 },
+    { icon: '🎯', text: 'Sharp Mind', unlocksAt: 30 },
+    { icon: '❤️', text: 'Self-Respect', unlocksAt: 30 },
+    { icon: '🌟', text: 'Full Control', unlocksAt: 60 },
+  ];
+
+  const QUOTES = [
+    { text: "Discipline is the bridge between goals and accomplishment.", author: "JIM ROHN" },
+    { text: "You don't have to be great to start, but you have to start to be great.", author: "ZIG ZIGLAR" },
+    { text: "The pain of discipline is nothing like the pain of disappointment.", author: "JUSTIN LANGER" },
+    { text: "He who conquers himself is the mightiest warrior.", author: "CONFUCIUS" },
+    { text: "নিজেকে জয় করতে পারলে পুরো পৃথিবী জয় করা সম্ভব।", author: "UNKNOWN" },
+    { text: "Every moment of resistance to temptation is a victory.", author: "FREDERICK WILLIAM FABER" },
+    { text: "Your future self is watching you right now through your memories.", author: "ANONYMOUS" },
+  ];
+
+  const STREAK_MESSAGES = {
+    0: "আজকেই শুরু করো। প্রথম দিনটা সবচেয়ে গুরুত্বপূর্ণ।",
+    1: "প্রথম দিন পার করেছ। তুমি পারবে! 💪",
+    3: "৩ দিন! Brain reboot শুরু হয়েছে।",
+    7: "১ সপ্তাহ! তুমি প্রমাণ করেছ পারো। 🔥",
+    14: "২ সপ্তাহ! Confidence আসছে। ⚡",
+    21: "২১ দিন! নতুন habit তৈরি হয়েছে। 🧠",
+    30: "১ মাস! তুমি অন্য স্তরে চলে গেছ। 🏆",
+    60: "২ মাস! Mental clarity এখন তোমার শক্তি। 🌟",
+    90: "৯০ দিন! তুমি জিতে গেছ ভাই। 👑",
+  };
+
+  // ===== STATE =====
+  let state = JSON.parse(localStorage.getItem('cleanmind') || '{}');
+  if (!state.days) state.days = {};
+  if (!state.startDate) state.startDate = null;
+
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+
+  // ===== UTILS =====
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function saveState() {
+    localStorage.setItem('cleanmind', JSON.stringify(state));
+  }
+
+  function getStreak() {
+    let streak = 0;
+    let d = new Date();
+    while (true) {
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      if (state.days[key] === 'clean' || state.days[key] === 'urge-won') {
+        streak++;
+        d.setDate(d.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  function getBestStreak() {
+    const keys = Object.keys(state.days).sort();
+    let best = 0, cur = 0;
+    for (let i = 0; i < keys.length; i++) {
+      if (state.days[keys[i]] === 'clean' || state.days[keys[i]] === 'urge-won') {
+        cur++;
+        best = Math.max(best, cur);
+      } else {
+        cur = 0;
+      }
+    }
+    return best;
+  }
+
+  function getTotalClean() {
+    return Object.values(state.days).filter(v => v === 'clean' || v === 'urge-won').length;
+  }
+
+  function getSuccessRate() {
+    const total = Object.keys(state.days).length;
+    if (!total) return '0%';
+    return Math.round((getTotalClean() / total) * 100) + '%';
+  }
+
+  function getStreakMessage(streak) {
+    const keys = Object.keys(STREAK_MESSAGES).map(Number).sort((a,b) => b-a);
+    for (const k of keys) {
+      if (streak >= k) return STREAK_MESSAGES[k];
+    }
+    return STREAK_MESSAGES[0];
+  }
+
+  // ===== RENDER =====
+  function render() {
+    const streak = getStreak();
+
+    // Streak
+    const numEl = document.getElementById('streakNum');
+    numEl.textContent = streak;
+    numEl.classList.remove('pulse');
+    void numEl.offsetWidth;
+    numEl.classList.add('pulse');
+
+    document.getElementById('streakMsg').textContent = getStreakMessage(streak);
+    document.getElementById('bestStreak').textContent = Math.max(getBestStreak(), streak);
+    document.getElementById('totalClean').textContent = getTotalClean();
+    document.getElementById('successRate').textContent = getSuccessRate();
+
+    renderCalendar();
+    renderMilestones(streak);
+    renderBenefits(streak);
+    renderQuote();
+  }
+
+  function renderCalendar() {
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('calMonthLabel').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+
+    const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    dayNames.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-day-name';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const today = new Date();
+
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day empty';
+      grid.appendChild(el);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el = document.createElement('div');
+      const key = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const status = state.days[key];
+      const isToday = d === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+
+      el.className = 'cal-day has-date';
+      if (status === 'clean') el.classList.add('clean');
+      else if (status === 'relapsed') el.classList.add('relapsed');
+      else if (status === 'urge-won') el.classList.add('urge-won');
+      if (isToday) el.classList.add('today-mark');
+
+      el.textContent = d;
+      el.title = status ? status : 'Not marked';
+
+      el.onclick = () => cycleDayStatus(key, el);
+      grid.appendChild(el);
+    }
+  }
+
+  function cycleDayStatus(key, el) {
+    const cur = state.days[key];
+    if (!cur) state.days[key] = 'clean';
+    else if (cur === 'clean') state.days[key] = 'urge-won';
+    else if (cur === 'urge-won') state.days[key] = 'relapsed';
+    else delete state.days[key];
+    saveState();
+    render();
+  }
+
+  function renderMilestones(streak) {
+    const list = document.getElementById('milestoneList');
+    list.innerHTML = '';
+    MILESTONES.forEach(m => {
+      const achieved = streak >= m.days;
+      const el = document.createElement('div');
+      el.className = 'milestone-item' + (achieved ? ' achieved' : '');
+      el.innerHTML = `
+        <div class="milestone-icon">${achieved ? m.icon : '🔒'}</div>
+        <div class="milestone-info">
+          <div class="milestone-name" style="color:${achieved ? 'var(--accent)' : 'var(--muted)'}">${m.name}</div>
+          <div class="milestone-desc">${m.desc}</div>
+        </div>
+        <div class="milestone-days">${m.days} days</div>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  function renderBenefits(streak) {
+    const grid = document.getElementById('benefitsGrid');
+    grid.innerHTML = '';
+    BENEFITS.forEach(b => {
+      const unlocked = streak >= b.unlocksAt;
+      const el = document.createElement('div');
+      el.className = 'benefit-item' + (unlocked ? ' unlocked' : '');
+      el.innerHTML = `
+        <span class="benefit-icon">${unlocked ? b.icon : '🔒'}</span>
+        <span>${b.text}</span>
+        ${!unlocked ? `<span style="margin-left:auto;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">${b.unlocksAt}d</span>` : ''}
+      `;
+      grid.appendChild(el);
+    });
+  }
+
+  function renderQuote() {
+    const q = QUOTES[Math.floor(Date.now() / 86400000) % QUOTES.length];
+    document.getElementById('quoteText').textContent = `"${q.text}"`;
+    document.getElementById('quoteAuthor').textContent = `— ${q.author}`;
+  }
+
+  // ===== ACTIONS =====
+  function markToday(status) {
+    const key = todayKey();
+    const wasClean = state.days[key] === 'clean';
+
+    if (status === 'clean') {
+      if (state.days[key] === 'clean') {
+        showToast('✅ আজকে already mark করা আছে!');
+        return;
+      }
+      state.days[key] = 'clean';
+      saveState();
+      render();
+
+      const streak = getStreak();
+      if (streak > 0 && streak % 7 === 0) celebrate();
+      showToast('🔥 আজকের দিন mark হয়েছে! Keep going!');
+
+    } else {
+      if (state.days[key] === 'relapsed') {
+        showToast('এটা already mark আছে। Reset করো এবং আবার শুরু করো।');
+        return;
+      }
+      state.days[key] = 'relapsed';
+      saveState();
+      render();
+      showToast('💔 Relapse mark হয়েছে। কাল আবার শুরু। তুমি পারবে।');
+    }
+  }
+
+  function changeMonth(dir) {
+    currentMonth += dir;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    renderCalendar();
+  }
+
+  function toggleStep(el) {
+    el.classList.toggle('step-checked');
+    const text = el.querySelector('.step-text');
+    text.classList.toggle('step-done');
+  }
+
+  // ===== TOAST =====
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ===== CELEBRATE =====
+  function celebrate() {
+    const c = document.getElementById('celebrate');
+    c.innerHTML = '';
+    const colors = ['#00ff88','#00ccff','#ffaa00','#ff88cc','#ffffff'];
+    for (let i = 0; i < 60; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.cssText = `
+        left: ${Math.random() * 100}%;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        animation-delay: ${Math.random() * 1.5}s;
+        animation-duration: ${2 + Math.random() * 2}s;
+        transform: rotate(${Math.random() * 360}deg);
+      `;
+      c.appendChild(piece);
+    }
+    setTimeout(() => c.innerHTML = '', 5000);
+  }
+
+  // ===== INIT =====
+  render();
+</script>
+</body>
+</html>
